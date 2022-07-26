@@ -6,10 +6,12 @@ const $messageFormInput = $messageForm.querySelector('input')
 const $messageFormButton = $messageForm.querySelector('button')
 const $sendLocationButton = document.querySelector('#send-location')
 const $messages = document.querySelector('#messages')
+const $users = document.querySelector('#userlist')
 
 // Templates
 const messageTemplate = document.querySelector('#message-template').innerHTML
 const locationMessageTemplate = document.querySelector('#location-message-template').innerHTML
+const userTemplate = document.querySelector('#userTemplate').innerHTML
 
 // Options
 const { username, room } = Qs.parse(location.search, { ignoreQueryPrefix: true })
@@ -67,9 +69,22 @@ $sendLocationButton.addEventListener('click', () => {
             longitude: position.coords.longitude
         }, () => {
             $sendLocationButton.removeAttribute('disabled')
-            console.log('Location shared!')  
+            console.log('Location shared!')
         })
     })
+})
+
+socket.on('getUser', ({ rooms, users }) => {
+    console.log('Users',users)
+    users = users.filter((user)=> {return user.username !== username.toLowerCase()})
+  
+    const html = Mustache.render(userTemplate, {
+        rooms,
+        users,
+        currentUser: username
+    })
+
+    document.querySelector('#userlist').innerHTML = html
 })
 
 socket.emit('join', { username, room }, (error) => {

@@ -28,7 +28,11 @@ io.on('connection', (socket) => {
 
         socket.emit('message', generateMessage('inCogChat', 'Welcome!'))
         socket.broadcast.to(user.room).emit('message', generateMessage('inCogChat', `${user.username} has joined!`))
-
+        io.to(user.room).emit('getUser', {
+            rooms: user.room,
+            users: getUsersInRoom(user.room)
+        })
+        
         callback()
     })
 
@@ -55,6 +59,10 @@ io.on('connection', (socket) => {
 
         if (user) {
             io.to(user.room).emit('message', generateMessage('inCogChat', `${user.username} has left!`))
+            io.to(user.room).emit('getUser', {
+                rooms: user.room,
+                users: getUsersInRoom(user.room)
+            })
         }
     })
 })
